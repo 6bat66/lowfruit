@@ -11,10 +11,9 @@ sort -u domains_$1 -o domains_$1
 cat domains_$1 | filter-resolved | tee -a domains_$1.txt
 #------------------------- Usei meu outro script para enumeranção de subdominios ----------------------------------# 
 
-#subdomain takeonver
-#filtro de sudominios online com httprobe
+subzy -targets domains_$1 | tee subdomainTakeOver.txt #subdomain takeonver
 
-cat domains_$1 | gau --subs --threads 5 | tee allUrls.txt; 
+cat domains_$1.txt | gau --subs --threads 5 | tee allUrls.txt; 
 
 #cat allUrls.txt | grep -i "\.log$" | tee log.txt;
 #cat allUrls.txt | grep -i "\.bak$" | tee bak.txt;
