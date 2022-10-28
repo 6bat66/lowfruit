@@ -1,3 +1,11 @@
 httpx
 
+-- brute finder --
+apt install golang
+apt install amass
+go install -v https://github.com/tomnomnom/assetfinder@latest
+go install github.com/tomnomnom/assetfinder@latest
+go install -v github.com/tomnomnom/hacks/filter-resolved@latest
+
+-- lowfruit --
 go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
