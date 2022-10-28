@@ -1,0 +1,3 @@
+httpx
+
+go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
