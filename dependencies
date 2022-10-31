@@ -7,3 +7,4 @@ go install github.com/tomnomnom/assetfinder@latest
 go install -v github.com/tomnomnom/hacks/filter-resolved@latest
 go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
 go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+go install -v github.com/lukasikic/subzy@latest
