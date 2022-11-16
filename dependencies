@@ -8,4 +8,4 @@ go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
 go install -v github.com/lukasikic/subzy@latest
 go install -v github.com/Emoe/kxss@latest
 go install -v github.com/tomnomnom/gf@latest
-
+go install -v github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest
