@@ -9,3 +9,4 @@ go install -v github.com/lukasikic/subzy@latest
 go install -v github.com/Emoe/kxss@latest
 go install -v github.com/tomnomnom/gf@latest
 go install -v github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest
+go install github.com/lc/gau/v2/cmd/gau@latest
