@@ -1,6 +1,7 @@
 apt install golang
 apt install amass
 snap install amass
+apt install nuclei
 go install -v github.com/tomnomnom/assetfinder@latest
 go install -v github.com/tomnomnom/hacks/filter-resolved@latest
 go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
