@@ -20,7 +20,7 @@ then
     #------------------------- Usei meu outro script para enumeranção de subdominios ----------------------------------#
 
     # Procurar URLs com base na internet
-    cat domains_$1.htxt | gau --treads 5 --subs | httpx -silent | sort | tee allUrls.txt
+    cat domains_$1.htxt | gau --threads 5 --subs | httpx -silent | sort | tee allUrls.txt
     
     # Scaner de vuln
     nuclei -l domains_$1.txt -silent -o nuclei.txt
