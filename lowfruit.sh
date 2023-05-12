@@ -1,8 +1,4 @@
 #!/bin/bash
-    echo "MODO DE USO"
-    echo "./lowfruit.sh <dominio> <arquivo de sudominios>"
-    echo "Obs: Caso não tenha o arquivo de subdominios o script fara a enumeração sozinho"
-    echo ""
 
 mkdir $1
 cd $1
@@ -23,17 +19,13 @@ then
     rm domains_subfinder_$1
     #------------------------- Usei meu outro script para enumeranção de subdominios ----------------------------------#
 
+    # Procurar URLs com base na internet
+    cat domains_$1.htxt | gau --treads 5 --subs | httpx -silent | sort | tee allUrls.txt
+    
     # Scaner de vuln
     nuclei -l domains_$1.txt -silent -o nuclei.txt
 
-    # Subdomain takeonver
-    subzy run --targets domains_$1.txt --https | tee subzy.txt
-
-    # Procurar URLs com base na internet
-    cat domains_$1.htxt | gau --treads 5 --subs | httpx -silent | sort | tee allUrls.txt
-
     # Encontrar todos os parametros especificos
-
     mkdir parametros
     cat allUrls.txt | gf debug_logic | tee parametros/debug_logic
     cat allUrls.txt | gf img-traversal | tee parametros/img-traversal
@@ -49,61 +41,33 @@ then
     cat allUrls.txt | gf redirect | tee parametros/redirect
     cat allUrls.txt | gf ssrf | tee parametros/ssrf
     cat allUrls.txt | gf xss | tee parametros/xss
-
-    # Encontrar parametros refletidos
-    cat allParams.txt | kxss | cut -d " " -f 2 | tee xsstest
-
-    # Validar Path Transversal
-    httpx --silent -l allUrls.txt -path "///////../../../../../../etc/passwd" -status-code -mc 200 -ms 'root:' | tee pathTraversal.txt
-
-    # Encontrar extensões
-    mkdir ext
-    cat allUrls.txt | grep -i "\.log$" | tee ext/log.txt
-    cat allUrls.txt | grep -i "\.bak$" | tee ext/bak.txt
-    cat allUrls.txt | grep -i "\.xlsx$" | tee ext/xlsx.txt
-    cat allUrls.txt | grep -i "\.js$" | tee ext/jsfiles.txt
-
-    # Encontrar arquivos/direorios que nao temos acesso para tentar bypass
-    cat allUrls.txt | httpx --silent -sc -nc | grep "403\|401" | tee bypass.txt
-
+    # Encontrar paginas que não temos acesso
+    cat allUrls.txt | httpx --silent -sc -nc | grep "403\|401" | tee parametros/bypass
     # Encontrar paineis administrativos
     cat allUrls.txt | httpx --silent -title | grep "admin\|login\|dashboard" | tee loginpanel.txt
 
-    echo ""
-    echo "Enumeração realizada"
+    # Encontrar parametros refletidos
+    #cat parametros/xss | kxss | cut -d " " -f 2 | tee xsstest
 
-else
-    # Scaner de vuln
-    nuclei -l domains_$1.txt -un -ut -silent -o nuclei.txt
+    # Validar Path Transversal
+    #httpx --silent -l allUrls.txt -path "///////../../../../../../etc/passwd" -status-code -mc 200 -ms 'root:' | tee pathTraversal.txt
 
     # Subdomain takeonver
-    subzy run --targets domains_$1.txt --https | tee subzy.txt
-
-    # Procurar URLs com base na internet
-    cat domains_$1.txt | gau --threads 5 | httpx -silent | sort | tee allUrls.txt
-
-    # Encontrar todos os parametros
-    grep "=" allUrls.txt | tee allParams.txt
-
-    # Encontrar parametros refletidos
-    cat allParams.txt | kxss | cut -d " " -f 2 | tee xsstest
-
-    # Validar Path Transversal
-    httpx --silent -l allUrls.txt -path "///////../../../../../../etc/passwd" -status-code -mc 200 -ms 'root:' | tee pathTraversal.txt
+    #subzy run --targets domains_$1.txt --https | tee subzy.txt
 
     # Encontrar extensões
-    mkdir ext
-    cat allUrls.txt | grep -i "\.log$" | tee ext/log.txt
-    cat allUrls.txt | grep -i "\.bak$" | tee ext/bak.txt
-    cat allUrls.txt | grep -i "\.xlsx$" | tee ext/xlsx.txt
-    cat allUrls.txt | grep -i "\.js$" | tee ext/jsfiles.txt
-
-    # Encontrar arquivos/direorios que nao temos acesso para tentar bypass
-    cat allUrls.txt | httpx --silent -sc -nc | grep "403\|401" | tee bypass.txt
-
-    # Encontrar paineis administrativos
-    cat allUrls.txt | httpx --silent -title | grep "admin\|login\|dashboard" | tee loginpanel.txt
-
+    #mkdir ext
+    #cat allUrls.txt | grep -i "\.log$" | tee ext/log.txt
+    #cat allUrls.txt | grep -i "\.bak$" | tee ext/bak.txt
+    #cat allUrls.txt | grep -i "\.xlsx$" | tee ext/xlsx.txt
+    #cat allUrls.txt | grep -i "\.js$" | tee ext/jsfiles.txt
+    
     echo ""
-    echo "Enumeração realizada"
+    echo "Enumeração concluida"
+
+else
+    echo "MODO DE USO"
+    echo "./lowfruit.sh <dominio> <arquivo de sudominios>"
+    echo "Obs: Caso não tenha o arquivo de subdominios o script fara a enumeração sozinho"
+    echo ""
 fi
