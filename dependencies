@@ -1,7 +1,6 @@
 apt install golang
-apt install amass
-snap install amass
-apt install nuclei
+go install -v github.com/owasp-amass/amass/v3/...@master
+go install -v github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest
 go install -v github.com/tomnomnom/assetfinder@latest
 go install -v github.com/tomnomnom/hacks/filter-resolved@latest
 go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
